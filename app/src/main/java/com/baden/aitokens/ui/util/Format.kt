@@ -38,6 +38,20 @@ object Format {
         }
     }
 
+    fun resetShort(resetAtMillis: Long?): String? {
+        if (resetAtMillis == null) return null
+        val diff = resetAtMillis - System.currentTimeMillis()
+        if (diff <= 0) return "ось-ось"
+        val totalHours = diff / 3_600_000
+        val minutes = (diff % 3_600_000) / 60_000
+        return when {
+            totalHours >= 24 -> "${totalHours / 24}д ${totalHours % 24}г"
+            totalHours > 0 -> "${totalHours}г ${minutes}хв"
+            minutes > 0 -> "${minutes}хв"
+            else -> "<1хв"
+        }
+    }
+
     fun updatedAgo(fetchedAtMillis: Long): String {
         val minutes = (System.currentTimeMillis() - fetchedAtMillis) / 60_000
         return when {
