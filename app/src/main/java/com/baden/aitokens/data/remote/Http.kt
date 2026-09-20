@@ -39,7 +39,7 @@ object Http {
         response.use { res ->
             val body = res.body?.string().orEmpty()
             if (!res.isSuccessful) {
-                throw ProviderException(describeError(res.code, body), res.code)
+                throw ProviderException(describeError(res.code, body), res.code, body)
             }
             return body
         }

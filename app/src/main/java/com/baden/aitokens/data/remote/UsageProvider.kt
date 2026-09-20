@@ -9,6 +9,13 @@ interface UsageProvider {
 
 fun UsageProvider.safeFetch(account: Account): ProviderUsage = try {
     fetch(account)
+} catch (e: ProviderException) {
+    ProviderUsage(
+        accountId = account.id,
+        provider = account.provider,
+        error = e.message ?: "Невідома помилка",
+        rawJson = e.rawBody,
+    )
 } catch (e: Exception) {
     ProviderUsage(
         accountId = account.id,

@@ -38,7 +38,7 @@ object ZaiParser {
     fun parse(accountId: String, body: String): ProviderUsage {
         val dto = Http.json.decodeFromString<Response>(body)
         if (dto.success == false || (dto.code != null && dto.code != 200)) {
-            throw ProviderException("Z.ai: ${dto.msg ?: "помилка відповіді"}")
+            throw ProviderException("Z.ai: ${dto.msg ?: "помилка відповіді"}", rawBody = body)
         }
         val windows = dto.data?.limits.orEmpty().map { limit ->
             val remaining = limit.percentage?.let { (100.0 - it).coerceIn(0.0, 100.0) }
