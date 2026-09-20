@@ -7,6 +7,7 @@ data class QuotaWindow(
     val percentRemaining: Double? = null,
     val resetAtMillis: Long? = null,
     val unlimited: Boolean = false,
+    val exactNumbers: Boolean = false,
     val note: String? = null,
 )
 

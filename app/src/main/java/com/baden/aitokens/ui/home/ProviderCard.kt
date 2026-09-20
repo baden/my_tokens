@@ -148,7 +148,8 @@ private fun QuotaWindowContent(window: QuotaWindow) {
             )
         }
         val usedTotal = if (window.used != null && window.total != null) {
-            "${Format.amount(window.used)} / ${Format.amount(window.total)}"
+            val fmt: (Double) -> String = if (window.exactNumbers) Format::exact else Format::amount
+            "${fmt(window.used)} / ${fmt(window.total)}"
         } else {
             null
         }

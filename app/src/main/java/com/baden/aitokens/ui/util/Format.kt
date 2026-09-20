@@ -15,6 +15,13 @@ object Format {
         }
     }
 
+    fun exact(value: Double): String =
+        if (value % 1.0 == 0.0) {
+            String.format(Locale.US, "%,d", value.toLong())
+        } else {
+            String.format(Locale.US, "%,.2f", value)
+        }
+
     fun percentRemaining(value: Double?): String? =
         value?.let { "${it.toInt()}% залишилось" }
 

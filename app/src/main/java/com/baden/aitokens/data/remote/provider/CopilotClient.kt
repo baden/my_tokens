@@ -67,29 +67,47 @@ object CopilotParser {
         val limit: Double? = null,
     )
 
+    private data class ModelUsage(
+        val model: String,
+        val gross: Double,
+        val grossAmount: Double,
+        val net: Double,
+        val netAmount: Double,
+    )
+
     fun parse(accountId: String, body: String, planLimit: Double? = null): ProviderUsage {
         val dto = Http.json.decodeFromString<Response>(body)
         val items = dto.usageItems
-        val used = items.sumOf { it.netQuantity ?: it.grossQuantity ?: 0.0 }
-        val amount = items.sumOf { it.netAmount ?: it.grossAmount ?: 0.0 }
+
+        val gross = items.sumOf { it.grossQuantity ?: it.netQuantity ?: 0.0 }
+        val net = items.sumOf { it.netQuantity ?: 0.0 }
+        val grossAmount = items.sumOf { it.grossAmount ?: it.netAmount ?: 0.0 }
+        val netAmount = items.sumOf { it.netAmount ?: 0.0 }
         val total = items.mapNotNull { it.limit }.maxOrNull() ?: planLimit
+
+        val percentRemaining = if (total != null && total > 0) {
+            ((total - gross) / total * 100).coerceIn(0.0, 100.0)
+        } else {
+            null
+        }
 
         val byModel = items
             .groupBy { it.model ?: "—" }
-            .mapValues { (_, list) -> list.sumOf { it.netQuantity ?: it.grossQuantity ?: 0.0 } }
-            .filterValues { it > 0 }
-            .toList()
-            .sortedByDescending { it.second }
+            .map { (model, list) ->
+                ModelUsage(
+                    model = model,
+                    gross = list.sumOf { it.grossQuantity ?: it.netQuantity ?: 0.0 },
+                    grossAmount = list.sumOf { it.grossAmount ?: it.netAmount ?: 0.0 },
+                    net = list.sumOf { it.netQuantity ?: 0.0 },
+                    netAmount = list.sumOf { it.netAmount ?: 0.0 },
+                )
+            }
+            .filter { it.gross > 0 || it.net > 0 }
+            .sortedByDescending { it.gross }
             .take(8)
 
         val period = dto.timePeriod?.let { tp ->
             if (tp.year != null && tp.month != null) "%04d-%02d".format(tp.year, tp.month) else null
-        }
-
-        val percentRemaining = if (total != null && total > 0) {
-            ((total - used) / total * 100).coerceIn(0.0, 100.0)
-        } else {
-            null
         }
 
         val noteParts = buildList {
@@ -97,9 +115,19 @@ object CopilotParser {
             if (items.isEmpty()) {
                 add("Цього місяця AI credits не витрачено")
             } else {
-                if (amount > 0) add("Витрачено ≈ " + String.format(Locale.US, "$%.2f", amount))
+                add("Витрачено: ${exact(gross)} (${money(grossAmount)})")
+                if (net > 0) add("Понад ліміт: ${exact(net)} (${money(netAmount)})")
                 if (byModel.isNotEmpty()) {
-                    add(byModel.joinToString("\n") { (model, qty) -> "$model: ${formatQty(qty)}" })
+                    add(
+                        byModel.joinToString("\n") { item ->
+                            val over = if (item.net > 0) {
+                                " • понад ліміт ${exact(item.net)} (${money(item.netAmount)})"
+                            } else {
+                                ""
+                            }
+                            "${item.model}: ${exact(item.gross)} (${money(item.grossAmount)})$over"
+                        }
+                    )
                 }
             }
             if (total == null) {
@@ -109,9 +137,10 @@ object CopilotParser {
 
         val window = QuotaWindow(
             title = "AI credits (місяць)",
-            used = used,
+            used = gross,
             total = total,
             percentRemaining = percentRemaining,
+            exactNumbers = true,
             note = noteParts.takeIf { it.isNotEmpty() }?.joinToString("\n"),
         )
 
@@ -123,8 +152,14 @@ object CopilotParser {
         )
     }
 
-    private fun formatQty(value: Double): String =
-        if (value % 1.0 == 0.0) value.toLong().toString() else String.format(Locale.US, "%.2f", value)
+    private fun exact(value: Double): String =
+        if (value % 1.0 == 0.0) {
+            String.format(Locale.US, "%,d", value.toLong())
+        } else {
+            String.format(Locale.US, "%,.2f", value)
+        }
+
+    private fun money(value: Double): String = String.format(Locale.US, "$%.2f", value)
 }
 
 class CopilotClient : UsageProvider {

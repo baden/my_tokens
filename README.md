@@ -82,7 +82,7 @@ gradlew.bat :app:assembleDebug
 
 - **DeepSeek** — API key.
 - **MiniMax** — Subscription Key (Token Plan); виберіть регіон Global/China.
-- **GitHub Copilot** — fine-grained PAT із правом `Account permissions → Plan: Read-only`, GitHub username і план. У 2026 GitHub вимірює Copilot у **AI credits** (`ai_credit/usage`); місячні ліміти: Pro 1500 / Pro+ 7000 / Max 20000 / Business 1900 / Enterprise 3900 / Free — обмежений allowance. Ліміт задається вручну, бо API не повертає поле ліміту.
+- **GitHub Copilot** — fine-grained PAT із правом `Account permissions → Plan: Read-only`, GitHub username і план. У 2026 GitHub вимірює Copilot у **AI credits** (`ai_credit/usage`); місячні ліміти: Pro 1500 / Pro+ 7000 / Max 20000 / Business 1900 / Enterprise 3900 / Free — обмежений allowance. Ліміт задається вручну, бо API не повертає поле ліміту. Картка показує загальне споживання (`grossQuantity`) та суму понад ліміт (`netQuantity`, додатковий бюджет) з вартістю і розбивкою по моделях.
 - **Z.ai** — API key.
 
 Ключі зберігаються лише на пристрої, шифруються й нікуди не надсилаються (окрім запитів до відповідного API провайдера).
