@@ -8,6 +8,7 @@ data class QuotaWindow(
     val resetAtMillis: Long? = null,
     val unlimited: Boolean = false,
     val exactNumbers: Boolean = false,
+    val summary: String? = null,
     val note: String? = null,
 )
 

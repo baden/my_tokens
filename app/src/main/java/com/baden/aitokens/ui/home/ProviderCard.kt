@@ -170,6 +170,11 @@ private fun QuotaWindowContent(window: QuotaWindow, expanded: Boolean) {
         window.total != null && window.total > 0 && window.used != null -> (window.used / window.total).coerceIn(0.0, 1.0)
         else -> null
     }
+    val usedPercent = when {
+        window.percentRemaining != null -> 100.0 - window.percentRemaining
+        window.total != null && window.total > 0 && window.used != null -> window.used / window.total * 100.0
+        else -> null
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -183,7 +188,7 @@ private fun QuotaWindowContent(window: QuotaWindow, expanded: Boolean) {
             Text(
                 text = when {
                     window.unlimited -> "безліміт"
-                    window.percentRemaining != null -> "${window.percentRemaining.toInt()}%"
+                    usedPercent != null -> "${usedPercent.toInt()}%"
                     window.used != null -> Format.amount(window.used)
                     else -> ""
                 },
@@ -194,6 +199,13 @@ private fun QuotaWindowContent(window: QuotaWindow, expanded: Boolean) {
             LinearProgressIndicator(
                 progress = { fraction.toFloat() },
                 modifier = Modifier.fillMaxWidth().height(4.dp),
+            )
+        }
+        window.summary?.takeIf { it.isNotBlank() }?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.error,
             )
         }
         if (expanded) {

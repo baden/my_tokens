@@ -141,6 +141,7 @@ object CopilotParser {
             total = total,
             percentRemaining = percentRemaining,
             exactNumbers = true,
+            summary = if (net > 0) "Понад ліміт: ${exact(net)} (${money(netAmount)})" else null,
             note = noteParts.takeIf { it.isNotEmpty() }?.joinToString("\n"),
         )
 

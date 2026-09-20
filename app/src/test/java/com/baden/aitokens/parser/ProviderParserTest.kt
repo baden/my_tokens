@@ -114,6 +114,7 @@ class ProviderParserTest {
         assertTrue(note.contains("$19.85"))
         assertTrue(note.contains("528.08"))
         assertTrue(note.contains("$5.28"))
+        assertEquals("Понад ліміт: 528.08 ($5.28)", window.summary)
     }
 
     @Test
