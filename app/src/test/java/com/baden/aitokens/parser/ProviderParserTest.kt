@@ -92,22 +92,25 @@ class ProviderParserTest {
     }
 
     @Test
-    fun copilot_aggregatesPremiumRequests() {
+    fun copilot_parsesAiCreditUsage() {
         val json = """
-            {"user":"octocat","timePeriod":{"year":2026,"month":1},"usageItems":[
-              {"product":"copilot","sku":"Copilot Premium Request","model":"gpt-4","unitType":"request","grossQuantity":120,"netQuantity":120,"limit":300},
-              {"product":"copilot","sku":"Copilot Premium Request","model":"claude-3.5-sonnet","unitType":"request","grossQuantity":30,"netQuantity":30,"limit":300}
+            {"timePeriod":{"year":2026,"month":9},"user":"baden","usageItems":[
+              {"product":"Copilot AI Credits","sku":"AI Credit","model":"GPT-5","unitType":"ai-credits","pricePerUnit":0.01,"grossQuantity":100,"grossAmount":1.0,"netQuantity":100,"netAmount":1.0},
+              {"product":"Copilot AI Credits","sku":"AI Credit","model":"Claude Opus 5","unitType":"ai-credits","pricePerUnit":0.01,"grossQuantity":50,"grossAmount":0.5,"netQuantity":50,"netAmount":0.5}
             ]}
         """.trimIndent()
 
-        val usage = CopilotParser.parse("acc-5", json)
+        val usage = CopilotParser.parse("acc-5", json, planLimit = 7_000.0)
 
         assertEquals(Provider.COPILOT, usage.provider)
         assertEquals(1, usage.windows.size)
         val window = usage.windows[0]
+        assertEquals("AI credits (місяць)", window.title)
         assertEquals(150.0, window.used!!, 0.001)
-        assertEquals(300.0, window.total!!, 0.001)
-        assertEquals(50.0, window.percentRemaining!!, 0.001)
+        assertEquals(7_000.0, window.total!!, 0.001)
+        assertEquals(97.857, window.percentRemaining!!, 0.01)
+        assertTrue(window.note!!.contains("GPT-5"))
+        assertTrue(window.note!!.contains("$1.50"))
     }
 
     @Test
@@ -116,28 +119,28 @@ class ProviderParserTest {
             {"timePeriod":{"year":2026,"month":9},"user":"baden","usageItems":[]}
         """.trimIndent()
 
-        val usage = CopilotParser.parse("acc-6", json, planLimit = 1500.0)
+        val usage = CopilotParser.parse("acc-6", json, planLimit = 7_000.0)
 
         val window = usage.windows[0]
         assertEquals(0.0, window.used!!, 0.001)
-        assertEquals(1500.0, window.total!!, 0.001)
+        assertEquals(7_000.0, window.total!!, 0.001)
         assertEquals(100.0, window.percentRemaining!!, 0.001)
-        assertTrue(window.note!!.contains("не використано"))
+        assertTrue(window.note!!.contains("не витрачено"))
     }
 
     @Test
     fun copilot_usesPlanLimitWhenApiOmitsLimit() {
         val json = """
             {"timePeriod":{"year":2026,"month":9},"user":"baden","usageItems":[
-              {"model":"gpt-5","netQuantity":150,"grossQuantity":150}
+              {"model":"GPT-5","netQuantity":700,"grossQuantity":700}
             ]}
         """.trimIndent()
 
-        val usage = CopilotParser.parse("acc-7", json, planLimit = 1500.0)
+        val usage = CopilotParser.parse("acc-7", json, planLimit = 7_000.0)
 
         val window = usage.windows[0]
-        assertEquals(150.0, window.used!!, 0.001)
-        assertEquals(1500.0, window.total!!, 0.001)
+        assertEquals(700.0, window.used!!, 0.001)
+        assertEquals(7_000.0, window.total!!, 0.001)
         assertEquals(90.0, window.percentRemaining!!, 0.001)
     }
 }

@@ -8,7 +8,7 @@ Android-застосунок для перегляду використання 
 |---|---|---|
 | **DeepSeek** | `GET https://api.deepseek.com/user/balance` | topped-up баланс, total, granted, валюта |
 | **MiniMax** | `GET https://www.minimax.io/v1/token_plan/remains` (fallback `.../v1/coding_plan/remains`) | 5-годинне rolling + тижневе вікна, час до скидання |
-| **GitHub Copilot** | `GET https://api.github.com/users/{user}/settings/billing/premium_request/usage` | premium requests за місяць + розбивка по моделях |
+| **GitHub Copilot** | `GET https://api.github.com/users/{user}/settings/billing/ai_credit/usage` (fallback `.../premium_request/usage`) | AI credits за місяць, витрачені $, розбивка по моделях |
 | **Z.ai** | `GET https://api.z.ai/api/monitor/usage/quota/limit` | `TOKENS_LIMIT` (5 год) + `TIME_LIMIT` (MCP, місяць) |
 
 > Частина ендпоінтів неофіційна й може змінитися. На кожній картці є «Показати відповідь API» для звірки сирого JSON.
@@ -82,7 +82,7 @@ gradlew.bat :app:assembleDebug
 
 - **DeepSeek** — API key.
 - **MiniMax** — Subscription Key (Token Plan); виберіть регіон Global/China.
-- **GitHub Copilot** — fine-grained PAT із правом `Account permissions → Plan: Read-only`, GitHub username і план (Free 50 / Pro 300 / Pro+ 1500 / Business 300 / Enterprise 1000). Ліміт потрібен, бо публічний Billing API повертає лише використані premium requests (порожній список, якщо не витрачено жодного).
+- **GitHub Copilot** — fine-grained PAT із правом `Account permissions → Plan: Read-only`, GitHub username і план. У 2026 GitHub вимірює Copilot у **AI credits** (`ai_credit/usage`); місячні ліміти: Pro 1500 / Pro+ 7000 / Max 20000 / Business 1900 / Enterprise 3900 / Free — обмежений allowance. Ліміт задається вручну, бо API не повертає поле ліміту.
 - **Z.ai** — API key.
 
 Ключі зберігаються лише на пристрої, шифруються й нікуди не надсилаються (окрім запитів до відповідного API провайдера).
