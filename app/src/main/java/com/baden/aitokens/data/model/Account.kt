@@ -10,6 +10,7 @@ data class Account(
     val credential: String,
     val username: String? = null,
     val region: String? = null,
+    val plan: String? = null,
 ) {
     val title: String get() = label.ifBlank { provider.displayName }
 }

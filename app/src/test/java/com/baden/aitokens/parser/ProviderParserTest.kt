@@ -109,4 +109,35 @@ class ProviderParserTest {
         assertEquals(300.0, window.total!!, 0.001)
         assertEquals(50.0, window.percentRemaining!!, 0.001)
     }
+
+    @Test
+    fun copilot_emptyUsageUsesPlanLimit() {
+        val json = """
+            {"timePeriod":{"year":2026,"month":9},"user":"baden","usageItems":[]}
+        """.trimIndent()
+
+        val usage = CopilotParser.parse("acc-6", json, planLimit = 1500.0)
+
+        val window = usage.windows[0]
+        assertEquals(0.0, window.used!!, 0.001)
+        assertEquals(1500.0, window.total!!, 0.001)
+        assertEquals(100.0, window.percentRemaining!!, 0.001)
+        assertTrue(window.note!!.contains("не використано"))
+    }
+
+    @Test
+    fun copilot_usesPlanLimitWhenApiOmitsLimit() {
+        val json = """
+            {"timePeriod":{"year":2026,"month":9},"user":"baden","usageItems":[
+              {"model":"gpt-5","netQuantity":150,"grossQuantity":150}
+            ]}
+        """.trimIndent()
+
+        val usage = CopilotParser.parse("acc-7", json, planLimit = 1500.0)
+
+        val window = usage.windows[0]
+        assertEquals(150.0, window.used!!, 0.001)
+        assertEquals(1500.0, window.total!!, 0.001)
+        assertEquals(90.0, window.percentRemaining!!, 0.001)
+    }
 }

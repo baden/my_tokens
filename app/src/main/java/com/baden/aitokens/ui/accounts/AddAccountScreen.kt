@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.baden.aitokens.data.model.Provider
+import com.baden.aitokens.data.remote.provider.CopilotPlans
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,6 +48,7 @@ fun AddAccountScreen(
     var credential by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var region by remember { mutableStateOf("global") }
+    var plan by remember { mutableStateOf("pro+") }
     var showCredential by remember { mutableStateOf(false) }
 
     val canSave = credential.isNotBlank() && (!provider.needsUsername || username.isNotBlank())
@@ -119,6 +121,22 @@ fun AddAccountScreen(
                 }
             }
 
+            if (provider.needsPlan) {
+                Text("План Copilot", style = MaterialTheme.typography.labelLarge)
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    CopilotPlans.ORDER.forEach { candidate ->
+                        FilterChip(
+                            selected = plan == candidate,
+                            onClick = { plan = candidate },
+                            label = { Text(CopilotPlans.display(candidate)) },
+                        )
+                    }
+                }
+            }
+
             OutlinedTextField(
                 value = credential,
                 onValueChange = { credential = it },
@@ -157,6 +175,7 @@ fun AddAccountScreen(
                         credential = credential,
                         username = username.takeIf { provider.needsUsername },
                         region = region.takeIf { provider.needsRegion },
+                        plan = plan.takeIf { provider.needsPlan },
                     )
                     onSaved()
                 },

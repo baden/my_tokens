@@ -21,6 +21,7 @@ class AccountRepository(private val store: CredentialStore) {
         credential: String,
         username: String?,
         region: String?,
+        plan: String? = null,
     ) {
         val account = Account(
             id = UUID.randomUUID().toString(),
@@ -29,6 +30,7 @@ class AccountRepository(private val store: CredentialStore) {
             credential = credential.trim(),
             username = username?.trim()?.takeIf { it.isNotEmpty() },
             region = region?.takeIf { provider.needsRegion },
+            plan = plan?.takeIf { provider.needsPlan },
         )
         update(_accounts.value + account)
     }

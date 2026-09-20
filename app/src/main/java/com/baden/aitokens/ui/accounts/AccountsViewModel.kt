@@ -19,8 +19,9 @@ class AccountsViewModel(app: Application) : AndroidViewModel(app) {
         credential: String,
         username: String?,
         region: String?,
+        plan: String?,
     ) {
-        repository.add(provider, label, credential, username, region)
+        repository.add(provider, label, credential, username, region, plan)
     }
 
     fun remove(id: String) {

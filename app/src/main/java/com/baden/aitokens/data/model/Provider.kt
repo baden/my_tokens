@@ -6,6 +6,7 @@ enum class Provider(
     val credentialHint: String,
     val needsUsername: Boolean = false,
     val needsRegion: Boolean = false,
+    val needsPlan: Boolean = false,
 ) {
     DEEPSEEK(
         displayName = "DeepSeek",
@@ -23,6 +24,7 @@ enum class Provider(
         credentialLabel = "Fine-grained PAT",
         credentialHint = "github_pat_...",
         needsUsername = true,
+        needsPlan = true,
     ),
     ZAI(
         displayName = "Z.ai",

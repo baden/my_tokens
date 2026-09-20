@@ -82,7 +82,7 @@ gradlew.bat :app:assembleDebug
 
 - **DeepSeek** — API key.
 - **MiniMax** — Subscription Key (Token Plan); виберіть регіон Global/China.
-- **GitHub Copilot** — fine-grained PAT із правом `Account permissions → Plan: Read-only`, плюс GitHub username.
+- **GitHub Copilot** — fine-grained PAT із правом `Account permissions → Plan: Read-only`, GitHub username і план (Free 50 / Pro 300 / Pro+ 1500 / Business 300 / Enterprise 1000). Ліміт потрібен, бо публічний Billing API повертає лише використані premium requests (порожній список, якщо не витрачено жодного).
 - **Z.ai** — API key.
 
 Ключі зберігаються лише на пристрої, шифруються й нікуди не надсилаються (окрім запитів до відповідного API провайдера).
